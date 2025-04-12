@@ -1,0 +1,19 @@
+{
+  "name": "playwright_autonad",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.51.1",
+    "@types/node": "^22.14.0"
+  },
+  "dependencies": {
+    "@wdio/cli": "^9.12.2",
+    "appium": "^2.17.1",
+    "webdriverio": "^9.12.2"
+  },
+  "description": ""
+}
