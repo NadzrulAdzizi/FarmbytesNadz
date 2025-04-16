@@ -13,6 +13,7 @@
   "dependencies": {
     "@wdio/cli": "^9.12.2",
     "appium": "^2.17.1",
+    "axios": "^1.8.4",
     "webdriverio": "^9.12.2"
   },
   "description": ""
