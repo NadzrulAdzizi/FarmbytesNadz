@@ -1,6 +1,5 @@
 // Import WebdriverIO for remote automation
 import {remote} from 'webdriverio';
-import { LoginPage } from './pages/LoginPage.js';
 
 async function main () {
   // Define capabilities for the Android device and Appium setup
@@ -22,23 +21,36 @@ async function main () {
     capabilities: caps
   });
 
-  try {
-    // Create an instance of the LoginPage
-    const loginPage = new LoginPage(driver);
+  // Launch Chrome browser on the Android device
+  const el5 = await driver.$("accessibility id:Chrome");
+  await el5.click();
 
-    // Perform login
-    await loginPage.login(
-      "https://commandcenter-stg.farmbyte.com/login",
-      "superadmin001@gmail.com",
-      "P@ssw0rd1"
-    );
+  // Click on the Chrome URL bar
+  const el6 = await driver.$("id:com.android.chrome:id/url_bar");
+  await el6.click();
 
-    console.log("Login successful!");
-  } catch (error) {
-    console.error("An error occurred:", error.message);
-  } finally {
+  // Enter the target URL in the Chrome URL bar
+  await el6.addValue("https://commandcenter-stg.farmbyte.com/login");
 
-    // Click the "Logout" button
+  // Click to navigate to the entered URL
+  const el7 = await driver.$("id:com.android.chrome:id/line_2");
+  await el7.click();
+
+  // Enter the email in the first input field
+  const el8 = await driver.$("-android uiautomator:new UiSelector().className(\"android.widget.EditText\").instance(0)");
+  await el8.click();
+  await el8.addValue("superadmin001@gmail.com");
+
+  // Enter the password in the second input field
+  const el9 = await driver.$("-android uiautomator:new UiSelector().className(\"android.widget.EditText\").instance(1)");
+  await el9.click();
+  await el9.addValue("P@ssw0rd1");
+
+  // Click the "Login" button
+  const el10 = await driver.$("-android uiautomator:new UiSelector().text(\"Login\")");
+  await el10.click();
+
+  // Click the "Logout" button
   const el11 = await driver.$("-android uiautomator:new UiSelector().text(\"Logout\")");
   await el11.click();
 
@@ -55,4 +67,4 @@ async function main () {
 }
 
 // Execute the main function and log any errors
-main().catch(console.log);}
+main().catch(console.log);
