@@ -55,4 +55,4 @@ async function main () {
 }
 
 // Execute the main function and log any errors
-main().catch(console.log);
+main().catch(console.log);}
