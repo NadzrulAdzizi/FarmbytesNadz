@@ -22,65 +22,63 @@ test('Playwright_onWeb', async () => {
   // Fill in the email address
   await page.locator('input[type="email"]').fill('superadmin001@gmail.com');
 
-  // Press the Tab key to move to the next input field
+  // Press the Tab key to move to the password field
   await page.locator('input[type="email"]').press('Tab');
+
+  // Click on the password input field
+  await page.locator('input[type="password"]').click();
 
   // Fill in the password
   await page.locator('input[type="password"]').fill('P@ssw0rd1');
 
   // Click the "Login" button to log in
   await page.getByRole('button', { name: 'Login' }).click();
-  
-  await page.locator('div').filter({ hasText: /^Supplier Management$/ }).first().click();
+
+  // Navigate to the "Supplier Management" section
+  await page.getByRole('link', { name: 'Supplier Management' }).click();
+
   // Navigate to the "System Administration" section
   await page.locator('div').filter({ hasText: /^System Administration$/ }).first().click();
+
   // Click on the "Admin Management" link
   await page.getByRole('link', { name: 'Admin Management' }).click();
-  
-  
-  // Open the "States" dropdown and select "Johor"
+
+  // Open the "States" dropdown and select "Terengganu"
   await page.getByRole('combobox').filter({ hasText: 'States' }).click();
+  await page.getByRole('option', { name: 'Terengganu' }).click();
+
+  // Select "Johor" in the "States" dropdown
   await page.getByRole('option', { name: 'Johor' }).click();
 
-  // Open the "Department" dropdown and select "All"
+  // Open the "Department" dropdown and select "create"
   await page.getByRole('combobox').filter({ hasText: 'Department' }).click();
+  await page.getByRole('option', { name: 'create', exact: true }).click();
+
+  // Select "baru" in the "Department" dropdown
+  await page.getByRole('option', { name: 'baru' }).click();
+
+  // Select "All" in the "Department" dropdown
   await page.getByRole('option', { name: 'All' }).click();
 
   // Open the "Role" dropdown and select "All"
   await page.getByRole('combobox').filter({ hasText: 'Role' }).click();
   await page.getByRole('option', { name: 'All' }).click();
 
-  // Click on the "Users" section
-  await page.getByText('Users').click();
+  // Click on the "Admin Management" heading
+  await page.getByRole('heading', { name: 'Admin Management' }).click();
 
   // Open the dropdown for roles and select "All"
-  await page.getByRole('combobox').filter({ hasText: 'administratornew_role_examplenon_finance_testingoms_superadminpml_adminpricing' }).click();
+  await page.getByRole('combobox').filter({ hasText: 'administratordelete_admindelete_adminnew_role_examplenon_finance_testingoms_supe' }).click();
   await page.getByRole('option', { name: 'All' }).click();
 
-  // Select the "administrator" role
+  // Select "delete_admin" in the roles dropdown
+  await page.getByRole('option', { name: 'delete_admin' }).nth(1).click();
+
+  // Select "administrator" in the roles dropdown
   await page.getByRole('option', { name: 'administrator', exact: true }).click();
 
-  // Click on the "Users" section again
-  await page.getByText('Users').click();
-
-  // Interact with a specific department or user entry
-  await page.getByText('AnalogbarucreatecreateNewDigitalnewDepttest departmenttest tryDepartment8').click();
-
-  // Open the dropdown and select "All"
-  await page.getByRole('option', { name: 'All' }).click();
-
-  // Select the "baru" option
-  await page.getByRole('option', { name: 'baru' }).click();
-
-  // Click on the "Users" section again
-  await page.getByText('Users').click();
-
-  // Select a specific state and change it to "Negeri Sembilan"
-  await page.getByText('JohorStates1').click();
-  await page.getByRole('option', { name: 'Negeri Sembilan' }).click();
-
-  // Click on "Add User" in the "UsersRoles" section
-  await page.getByText('UsersRolesAdd User').click();
+  // Click on the "Admin Management" heading again
+  await page.getByRole('heading', { name: 'Admin Management' }).click();
 
   // Click the "Logout" button to log out
   await page.getByRole('button', { name: 'Logout' }).click();
