@@ -68,6 +68,7 @@ async function deletePost(postId) {
   }
 }
 
+
 // Main function to execute API calls
 async function main() {
   console.log('Fetching all posts...');
