@@ -404,6 +404,184 @@ async function main() {
     await driver.pause(2000);
     await driver.saveScreenshot(path.join(screenshotDir, `step${step++}_location_chosen.png`));
 
+    // Step 24.5: Set Postal Code (CORRECTED)
+    console.log("Step 24.5: Set Postal Code");
+    
+    try {
+      // Method 1: Direct postal code input
+      console.log("🔄 Method 1: Direct postal code input");
+      const postalCodeField = await driver.$('android=new UiSelector().className("android.widget.EditText").instance(2)');
+      
+      if (await postalCodeField.isExisting()) {
+        await postalCodeField.click();
+        await driver.pause(500);
+        await postalCodeField.setValue("71010");
+        await driver.pause(1000);
+        console.log("✅ Postal code filled successfully");
+      } else {
+        throw new Error("Postal code field not found");
+      }
+      
+    } catch (method1Error) {
+      console.log(`❌ Method 1 failed: ${method1Error.message}`);
+      
+      // Method 2: Try alternative EditText instances
+      try {
+        console.log("🔄 Method 2: Alternative EditText instances");
+        
+        const alternativeInstances = [1, 3, 4, 5];
+        let postalCodeFilled = false;
+        
+        for (const instance of alternativeInstances) {
+          try {
+            console.log(`🔄 Trying EditText instance ${instance}`);
+            const element = await driver.$(`android=new UiSelector().className("android.widget.EditText").instance(${instance})`);
+            
+            if (await element.isExisting()) {
+              await element.click();
+              await driver.pause(500);
+              await element.setValue("71010");
+              await driver.pause(1000);
+              postalCodeFilled = true;
+              console.log(`✅ Postal code filled with instance ${instance}`);
+              break;
+            }
+          } catch (instanceError) {
+            console.log(`❌ Instance ${instance} failed: ${instanceError.message}`);
+          }
+        }
+        
+        if (!postalCodeFilled) {
+          throw new Error("All EditText instances failed");
+        }
+        
+      } catch (method2Error) {
+        console.log(`❌ Method 2 failed: ${method2Error.message}`);
+        
+        // Method 3: Try text-based selectors
+        try {
+          console.log("🔄 Method 3: Text-based selectors");
+          
+          const textSelectors = [
+            'android=new UiSelector().textContains("Postal")',
+            'android=new UiSelector().textContains("Code")',
+            'android=new UiSelector().textContains("postal")',
+            'android=new UiSelector().textContains("code")',
+            'android=new UiSelector().descriptionContains("postal")',
+            'android=new UiSelector().descriptionContains("Postal")',
+          ];
+          
+          let postalCodeFilled = false;
+          
+          for (const selector of textSelectors) {
+            try {
+              console.log(`🔄 Trying selector: ${selector}`);
+              const element = await driver.$(selector);
+              
+              if (await element.isExisting()) {
+                await element.click();
+                await driver.pause(500);
+                await element.setValue("71010");
+                await driver.pause(1000);
+                postalCodeFilled = true;
+                console.log(`✅ Postal code filled with selector: ${selector}`);
+                break;
+              }
+            } catch (selectorError) {
+              console.log(`❌ Selector failed: ${selector}`);
+            }
+          }
+          
+          if (!postalCodeFilled) {
+            throw new Error("All text-based selectors failed");
+          }
+          
+        } catch (method3Error) {
+          console.log(`❌ Method 3 failed: ${method3Error.message}`);
+          
+          // Method 4: Find all EditText fields and try each one
+          try {
+            console.log("🔄 Method 4: Finding all EditText fields");
+            
+            const allEditTexts = await driver.$$('android=new UiSelector().className("android.widget.EditText")');
+            console.log(`Found ${allEditTexts.length} EditText fields`);
+            
+            let postalCodeFilled = false;
+            
+            for (let i = 0; i < allEditTexts.length; i++) {
+              try {
+                console.log(`🔄 Testing EditText field ${i}`);
+                const element = allEditTexts[i];
+                
+                // Try to fill this field
+                await element.click();
+                await driver.pause(500);
+                await element.setValue("71010");
+                await driver.pause(1000);
+                
+                postalCodeFilled = true;
+                console.log(`✅ Postal code filled in EditText field ${i}`);
+                break;
+                
+              } catch (fieldError) {
+                console.log(`❌ EditText field ${i} failed: ${fieldError.message}`);
+              }
+            }
+            
+            if (!postalCodeFilled) {
+              throw new Error("All EditText fields failed");
+            }
+            
+          } catch (method4Error) {
+            console.log(`❌ Method 4 failed: ${method4Error.message}`);
+            
+            // Method 5: Use coordinate-based input as last resort
+            try {
+              console.log("🔄 Method 5: Coordinate-based input");
+              
+              // Get screen dimensions
+              const screenSize = await driver.getWindowSize();
+              
+              // Click at common postal code field positions
+              const postalCodePosition = {
+                x: screenSize.width * 0.5,
+                y: screenSize.height * 0.6
+              };
+              
+              await driver.action('pointer')
+                .move({ duration: 0, x: postalCodePosition.x, y: postalCodePosition.y })
+                .down({ button: 0 })
+                .up({ button: 0 })
+                .perform();
+              
+              await driver.pause(500);
+              await driver.keys("71010");
+              await driver.pause(1000);
+              
+              console.log("✅ Postal code filled using coordinates");
+              
+            } catch (method5Error) {
+              console.log(`❌ Method 5 failed: ${method5Error.message}`);
+              console.error("❌ All postal code input methods failed!");
+              
+              // Take screenshot for debugging
+              const errorScreenshot = path.join(screenshotDir, `step${step++}_postal_code_error.png`);
+              await driver.saveScreenshot(errorScreenshot);
+              
+              // Continue without postal code (or throw error if required)
+              console.log("⚠️ Continuing without postal code...");
+            }
+          }
+        }
+      }
+    }
+    
+    // Take screenshot after postal code input
+    screenshotPath = path.join(screenshotDir, `step${step++}_postal_code_filled.png`);
+    await driver.saveScreenshot(screenshotPath);
+    console.log("✅ Postal code step completed");
+
+
     // Step 28: Set farm size (AUTO-GENERATED)
     console.log("Step 28: Set farm size");
     await (await driver.$('android=new UiSelector().text("0")')).click();
