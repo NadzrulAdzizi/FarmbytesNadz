@@ -153,7 +153,7 @@ async function main () {
     await writeResultToExcel(
       'Sign_Up_Individual',
       'TC002',
-      'Mobile_SignUp_Individual_NegativeFlow',
+      'Mobile_SignUp_Individual_NegativeFlow_InvalidPhone',
       testResult,
       screenshotPath,
       'Mobile_User_Onboarding'

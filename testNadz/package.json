@@ -1,0 +1,17 @@
+{
+  "name": "testnadz",
+  "version": "1.0.0",
+  "main": "FarmbyteAppiumNegetiveTest.spec.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.54.0",
+    "@types/node": "^24.0.13"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Mobile",
+  "type": "module",
+  "devDependencies": {
+    "@wdio/cli": "^9.17.1"
+  }
+}

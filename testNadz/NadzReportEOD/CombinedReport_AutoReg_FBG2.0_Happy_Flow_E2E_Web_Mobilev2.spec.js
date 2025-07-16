@@ -2,9 +2,9 @@ import * as XLSX from 'xlsx';
 import path from 'path';
 
 // === CONFIGURATION ===
-const iosSource = path.resolve(__dirname,'../Mobile/AutoReg_FBG2.0_Happy_Flow_E2E_Mobile_iOS.xlsx');
-const androidSource = path.resolve(__dirname,'../Mobile/AutoReg_FBG2.0_Happy_Flow_E2E_Mobile_Android.xlsx');
-const webSource = path.resolve('AutoReg_FBG2.0_Happy_Flow_E2E_Web.xlsx');
+const iosSource = path.resolve(__dirname,'../1.Mobile_Android/AutoReg_FBG2.0_Happy_Flow_E2E_Mobile_iOS.xlsx');
+const androidSource = path.resolve(__dirname,'../1.Mobile_Android/AutoReg_FBG2.0_Happy_Flow_E2E_Mobile_Android.xlsx');
+const webSource = path.resolve(__dirname,'../2.Web_Android/AutoReg_FBG2.0_Happy_Flow_E2E_Web.xlsx');
 const destPath = path.resolve('Combined_AutoReg_Report.xlsx');
 
 // Metadata for each sheet
@@ -25,7 +25,7 @@ const metaWeb = [
 
 // Column headers
 const headers = [
-  ['Module', 'TC ID', 'Test Case Scenario', '', 'Timestamp', 'Result', 'Screenshot']
+  ['Module', 'TC ID', 'Test Case Scenario', 'Timestamp', 'Result', 'Screenshot']
 ];
 
 // === HELPER FUNCTION ===

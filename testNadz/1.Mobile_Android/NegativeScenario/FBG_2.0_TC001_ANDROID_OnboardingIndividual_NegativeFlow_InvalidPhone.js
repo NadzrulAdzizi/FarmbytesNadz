@@ -56,7 +56,7 @@ async function main () {
   let driver;
   let testResult = 'PASS';
   let screenshotPath = '';
-  const screenshotDir = path.resolve('./screenshots/Mobile_Android');
+  const screenshotDir = path.resolve('./screenshots/Mobile');
   if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir);
   let step = 1;
 
@@ -153,7 +153,7 @@ async function main () {
     await writeResultToExcel(
       'Sign_Up_Individual',
       'TC001',
-      'Mobile_SignUp_Individual_NegativeFlow',
+      'Mobile_SignUp_Individual_NegativeFlow_InvalidPhone',
       testResult,
       screenshotPath,
       'Mobile_User_Onboarding'
