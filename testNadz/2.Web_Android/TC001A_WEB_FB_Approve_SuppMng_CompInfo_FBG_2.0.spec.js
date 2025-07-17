@@ -355,7 +355,7 @@ test('Playwright_onWeb', async () => {
       const success = await writeResultToExcel(
         'WEB_AdminLogin',
         'TC001A',
-        'Web_Admin_FB_Approve_SupplierManagement_CompanyInfo_HappyFlow',
+        'Web_Admin_FB_Approve_SupplierManagement_CompanyDetails_HappyFlow',
         timestamp,
         testResult,
         screenshotPath

@@ -45,7 +45,7 @@ async function main() {
     "appium:connectHardwareKeyboard": true
   };
 
-  const screenshotDir = path.resolve('./screenshots/Mobile_Android_DeleteUser');
+  const screenshotDir = path.resolve('./screenshots/Mobile_Android_DeleteUser_Gmail');
   if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir, { recursive: true });
 
   let driver;
@@ -63,6 +63,27 @@ async function main() {
     });
 
     console.log("🔄 Starting Delete User Test...");
+    
+    // Step 1: Launch app
+    console.log("Step 1: Launch app");
+    await (await driver.$("accessibility id:FarmByte Grow Staging")).click();
+    await driver.pause(2000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_launch_app.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 2: Navigate to Login with Gmail
+    console.log("Step 2: Navigate to Login with Gmail");
+    await (await driver.$('android=new UiSelector().description("Log in with Google ")')).click();
+    await driver.pause(1000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_signup_page.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 4: Select Gmail account
+    console.log("Step 4: Select Gmail account");
+    await (await driver.$("android=new UiSelector().text(\"nadzruladzizi03@gmail.com\")")).click();
+    await driver.pause(2000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_gmail_account_selected.png`);
+    await driver.saveScreenshot(screenshotPath);
 
     // Step 1: Navigate to User Profile
     console.log("Step 1: Navigate to User Profile");
@@ -95,6 +116,21 @@ async function main() {
 
     console.log("✅ Delete User Test completed successfully!");
 
+    // Step 2: Navigate to Login with Gmail
+    console.log("Step 2: Navigate to Login with Gmail");
+    await (await driver.$('android=new UiSelector().description("Log in with Google ")')).click();
+    await driver.pause(1000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_signup_page.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 4: Select Gmail account
+    console.log("Step 4: Select Gmail account");
+    await (await driver.$("android=new UiSelector().text(\"nadzruladzizi03@gmail.com\")")).click();
+    await driver.pause(2000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_gmail_account_selected.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+
   } catch (err) {
     testResult = 'FAIL';
     console.error("❌ Error occurred:", err.message);
@@ -105,9 +141,9 @@ async function main() {
   } finally {
     if (driver) await driver.deleteSession();
     await writeResultToExcel(
-      'Delete_User',
+      'Delete_User_Gmail',
       'TC003',
-      'Mobile_Delete_User_NegativeScenario',
+      'Mobile_Delete_User_Gmail_NegativeScenario',
       testResult,
       screenshotPath,
       'Mobile_Delete_User'

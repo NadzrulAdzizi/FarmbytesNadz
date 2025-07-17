@@ -2,7 +2,7 @@ import * as XLSX from 'xlsx';
 import path from 'path';
 
 // === CONFIGURATION ===
-const iosSource = path.resolve(__dirname,'../1.Mobile_Android/AutoReg_FBG2.0_Happy_Flow_E2E_Mobile_iOS.xlsx');
+const iosSource = path.resolve(__dirname,'../3.Mobile_iOS/AutoReg_FBG2.0_Happy_Flow_E2E_Mobile_iOS.xlsx');
 const androidSource = path.resolve(__dirname,'../1.Mobile_Android/AutoReg_FBG2.0_Happy_Flow_E2E_Mobile_Android.xlsx');
 const webSource = path.resolve(__dirname,'../2.Web_Android/AutoReg_FBG2.0_Happy_Flow_E2E_Web.xlsx');
 const destPath = path.resolve('Combined_AutoReg_Report.xlsx');
