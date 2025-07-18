@@ -173,7 +173,7 @@ async function main() {
     "appium:udid": "00008130-000165AC3E79001C",
   };
 
-  const screenshotDir = path.resolve('./screenshots/Mobile_iOS_SignUp');
+  const screenshotDir = path.resolve('./screenshots/Mobile_iOS_SignUp_AppleId_Company');
   if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir, { recursive: true });
 
   let driver;
@@ -199,6 +199,379 @@ async function main() {
     // ============================================
     console.log("🚀 Starting TC001: iOS Individual Sign Up with Email");
 
+    // Step 1: Launch FarmByte App (corrected selector)
+    console.log("Step 1: Launch FarmByte App");
+    await clickWithRetries(driver, '~FarmByte App Staging', 'FarmByte App');
+    await driver.pause(3000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_app_launched.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 2: Click Sign Up
+    console.log("Step 2: Click Sign Up");
+    await clickWithRetries(driver, '~Sign Up', 'Sign Up button');
+    await driver.pause(2000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_sign_up_clicked.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 4: Click Continue
+    console.log("Step 4: Click Continue");
+    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="Continue"]');
+    await driver.pause(1000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_full_name_filled.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 3: Click Sign up with Apple ID
+    console.log("Step 3: Click Sign up with Apple ID");
+    await clickWithRetries(driver, '//XCUIElementTypeOther[@name="Sign up with Apple"]');
+    await driver.pause(2000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_sign_up_with_email_clicked.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 4.1: Click Continue
+    console.log("Step 4: Click Continue");
+    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="Continue"]');
+    await driver.pause(1000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_full_name_filled.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 5: Sign in with Passcode
+    await clickWithRetries(driver, '//XCUIElementTypeCell[@name="SIWA_ACCOUNT_CELL"]');
+    await driver.pause(1000);
+    console.log("Step 5: Sign in with Passcode");
+    await clickWithRetries(driver, '//XCUIElementTypeOther[@name="AUTHORIZE_BUTTON_TITLE"]/XCUIElementTypeOther');
+    await driver.pause(1000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_email_filled.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 6: Click 9 six times
+    console.log("Step 6: Click 9 six times");
+    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
+    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
+    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
+    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
+    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
+    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
+    await driver.pause(1000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_phone_number_filled.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 7: Fill Name and Phone Number
+    console.log("Step 7: Fill Name and Phone Number");
+    await driver.pause(5000);
+    await fillTextWithRetries(driver, '//XCUIElementTypeTextField[@value=" "]', testData.fullNameCompany, 'Full Company Name');
+    await clickWithRetries(driver, '~Done', 'Done button');
+    await fillTextWithRetries(driver, '(//XCUIElementTypeOther[@name="Phone Number"])[1]', testData.phoneNumber, 'Phone Number');
+    await clickWithRetries(driver, '~Done', 'Done button');
+    await driver.pause(1000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_password_filled.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 10: Click Send - FIXED
+    console.log("Step 10: Click Send");
+    
+    // Try multiple selectors for the Send button
+    const sendButtonSelectors = [
+      '~   Send  ',  // Accessibility ID
+      '~ Send ',     // Accessibility ID without extra spaces
+      '~Send',       // Simple accessibility ID
+      '//XCUIElementTypeButton[@name="   Send  "]',  // XPath Button
+      '//XCUIElementTypeOther[@name="   Send  "]',   // XPath Other
+      '//XCUIElementTypeButton[@name=" Send "]',     // XPath with single spaces
+      '//XCUIElementTypeButton[contains(@name, "Send")]',  // XPath contains
+      '//XCUIElementTypeOther[contains(@name, "Send")]',   // XPath Other contains
+      '-ios class chain:**/XCUIElementTypeOther[`name == " Send "`][2]',  // iOS Class Chain with prefix
+      '-ios class chain:**/XCUIElementTypeButton[`name == " Send "`]'     // iOS Class Chain Button
+    ];
+    
+    let sendClicked = false;
+    
+    for (let i = 0; i < sendButtonSelectors.length; i++) {
+      try {
+        console.log(`🔄 Trying Send button selector ${i + 1}: ${sendButtonSelectors[i]}`);
+        
+        const element = await driver.$(sendButtonSelectors[i]);
+        
+        if (await element.isExisting()) {
+          console.log(`✅ Send button found with selector ${i + 1}`);
+          await element.click();
+          sendClicked = true;
+          console.log(`✅ Send button clicked successfully`);
+          break;
+        } else {
+          console.log(`❌ Send button not found with selector ${i + 1}`);
+        }
+      } catch (error) {
+        console.log(`❌ Selector ${i + 1} failed: ${error.message}`);
+        continue;
+      }
+    }
+    
+    // If all selectors fail, try coordinate click
+    if (!sendClicked) {
+      console.log("⚠️ All Send button selectors failed, trying coordinate click");
+      try {
+        // Click at bottom center where Send button usually is
+        await driver.action('pointer')
+          .move({ duration: 0, x: 200, y: 650 })
+          .down({ button: 0 })
+          .up({ button: 0 })
+          .perform();
+        
+        console.log("✅ Coordinate click performed for Send button");
+        sendClicked = true;
+      } catch (coordError) {
+        console.log(`❌ Coordinate click failed: ${coordError.message}`);
+      }
+    }
+    
+    // If still not clicked, try finding any button with "Send" text
+    if (!sendClicked) {
+      console.log("⚠️ Searching for any button containing 'Send'");
+      try {
+        const allButtons = await driver.$$('//XCUIElementTypeButton');
+        console.log(`📱 Found ${allButtons.length} buttons on screen`);
+        
+        for (let i = 0; i < allButtons.length; i++) {
+          try {
+            const buttonText = await allButtons[i].getText();
+            const buttonName = await allButtons[i].getAttribute('name');
+            
+            console.log(`📝 Button ${i + 1}: text="${buttonText}", name="${buttonName}"`);
+            
+            if ((buttonText && buttonText.includes('Send')) || 
+                (buttonName && buttonName.includes('Send'))) {
+              await allButtons[i].click();
+              console.log(`✅ Clicked Send button: "${buttonText || buttonName}"`);
+              sendClicked = true;
+              break;
+            }
+          } catch (buttonError) {
+            continue;
+          }
+        }
+      } catch (searchError) {
+        console.log(`❌ Button search failed: ${searchError.message}`);
+      }
+    }
+    
+    if (!sendClicked) {
+      console.log("❌ All attempts to click Send button failed");
+    }
+    
+    await driver.pause(500);
+    screenshotPath = path.join(screenshotDir, `step${step++}_send_clicked.png`);
+    await driver.saveScreenshot(screenshotPath);
+    
+    
+    // Step 12: Go to home (Discord for OTP)
+    console.log("Step 12: Go to home (Discord for OTP)");
+    await pressHomeButton(driver);
+    await driver.pause(2000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_home_pressed.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 13: Get LATEST OTP from Discord - ENHANCED
+    console.log("Step 13: Get LATEST OTP from Discord (iOS Enhanced)");
+    
+    let latestOTP = await fetchLatestOTPFromDiscord(driver);
+    
+    // If main method fails, try manual method
+    if (latestOTP === "2068") {
+      console.log("🔄 Main method failed, trying manual Discord search...");
+      latestOTP = await fetchLatestOTPFromDiscordManual(driver);
+    }
+    
+    console.log(`📱 LATEST OTP: ${latestOTP}`);
+    await driver.pause(2000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_otp_fetched.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 14: Return to home
+    console.log("Step 14: Return to home");
+    await pressHomeButton(driver);
+    await driver.pause(2000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_home_pressed_again.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 15: Return to FarmByte App
+    console.log("Step 15: Return to FarmByte App");
+    await clickWithRetries(driver, '~FarmByte App Staging', 'FarmByte App');
+    await driver.pause(3000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_returned_to_app.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+// Replace your OTP section with this:
+
+    // Step 16: Fill OTP in 4 boxes - ENHANCED WITH FALLBACKS
+    console.log("Step 16: Fill OTP in 4 boxes");
+    
+    // Try the main function first
+    let otpFilled = await fillOTPBoxes(driver, latestOTP);
+    
+    // If main function fails, try multiple fallback approaches
+    if (!otpFilled) {
+      console.log("⚠️ Main OTP filling failed, trying fallback approaches...");
+      
+      const otpDigits = latestOTP.split('');
+      
+      // Fallback 1: Try different XPath selectors
+      const fallbackSelectors = [
+        '(//XCUIElementTypeTextField)[1]',
+        '(//XCUIElementTypeTextField)[2]',
+        '(//XCUIElementTypeTextField)[3]',
+        '(//XCUIElementTypeTextField)[4]'
+      ];
+      
+      console.log("🔄 Trying fallback 1: XPath selectors");
+      let fallback1Success = true;
+      
+      for (let i = 0; i < 4; i++) {
+        try {
+          console.log(`🔄 Fallback 1 - Box ${i + 1} with: ${otpDigits[i]}`);
+          
+          const element = await driver.$(fallbackSelectors[i]);
+          
+          if (await element.isExisting()) {
+            await element.click();
+            await driver.pause(500);
+            await element.clearValue();
+            await driver.pause(300);
+            await element.setValue(otpDigits[i]);
+            await driver.pause(500);
+            console.log(`✅ Fallback 1 - Box ${i + 1} filled`);
+          } else {
+            console.log(`❌ Fallback 1 - Box ${i + 1} not found`);
+            fallback1Success = false;
+          }
+          
+        } catch (error) {
+          console.log(`❌ Fallback 1 - Box ${i + 1} failed: ${error.message}`);
+          fallback1Success = false;
+        }
+      }
+      
+      // Fallback 2: Try typing entire OTP in first field
+      if (!fallback1Success) {
+        console.log("🔄 Trying fallback 2: Single field approach");
+        try {
+          const firstField = await driver.$('//XCUIElementTypeTextField[1]');
+          if (await firstField.isExisting()) {
+            await firstField.click();
+            await driver.pause(500);
+            await firstField.clearValue();
+            await driver.pause(300);
+            await firstField.setValue(latestOTP);
+            await driver.pause(1000);
+            console.log("✅ Fallback 2: Entire OTP entered in first field");
+            otpFilled = true;
+          }
+        } catch (error) {
+          console.log(`❌ Fallback 2 failed: ${error.message}`);
+        }
+      } else {
+        otpFilled = true;
+      }
+      
+      // Fallback 3: Use driver.keys() method
+      if (!otpFilled) {
+        console.log("🔄 Trying fallback 3: Keys method");
+        try {
+          // Click somewhere to focus
+          await driver.action('pointer')
+            .move({ duration: 0, x: 200, y: 400 })
+            .down({ button: 0 })
+            .up({ button: 0 })
+            .perform();
+          
+          await driver.pause(500);
+          
+          // Type each digit with pause
+          for (let i = 0; i < 4; i++) {
+            await driver.keys([otpDigits[i]]);
+            await driver.pause(800);
+            console.log(`✅ Fallback 3 - Digit ${i + 1}: ${otpDigits[i]} typed`);
+          }
+          
+          console.log("✅ Fallback 3: OTP typed using keys");
+          otpFilled = true;
+          
+        } catch (error) {
+          console.log(`❌ Fallback 3 failed: ${error.message}`);
+        }
+      }
+    }
+    
+    if (!otpFilled) {
+      console.log("❌ All OTP filling methods failed!");
+    }
+    
+    await driver.pause(2000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_otp_filled.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 17: Click Verify
+    console.log("Step 17: Click Verify");
+    await clickWithRetries(driver, '~   Verify  ', 'Verify button');
+    await driver.pause(3000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_verify_clicked.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 20: Proceed to create account
+    console.log("Step 20: Proceed to create account");
+    await clickWithRetries(driver, '~   Proceed to create account  ', 'Proceed to create account');
+    await driver.pause(2000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_proceed_to_create_account.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 21: Select Company
+    console.log("Step 21: Select Company");
+    await clickWithRetries(driver, '(//XCUIElementTypeOther[@name="Company"])[1]');
+    await driver.pause(2000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_individual_selected.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 22: Click Next 
+    console.log("Step 22: Click Next");
+    await clickWithRetries(driver, '-ios class chain:**/XCUIElementTypeOther[`name == "   Next  "`][2]', 'Next button');
+    await driver.pause(2000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_next_clicked.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 23: Fill Company Name
+    console.log("Step 23: Fill Company Name");
+    await fillTextWithRetries(driver, '//XCUIElementTypeOther[@name="Company Name"]/XCUIElementTypeOther/XCUIElementTypeOther[1]/XCUIElementTypeOther[2]/XCUIElementTypeTextField', testData.companyName, 'Company Name');
+    await driver.pause(1000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_nric_filled.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 23.5: Fill SSM 
+    console.log("Step 23: Fill Company SSM");
+    await fillTextWithRetries(driver, '//XCUIElementTypeOther[@name="SSM No"]/XCUIElementTypeOther/XCUIElementTypeOther[1]/XCUIElementTypeOther[2]/XCUIElementTypeTextField', testData.companyRegistrationNo, 'Company SSM No');
+    await clickWithRetries(driver, '~Done', 'Done button');
+    await driver.pause(1000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_nric_filled.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 24: Accept Terms and Conditions (corrected selector)
+    console.log("Step 24: Accept Terms and Conditions");
+    await clickWithRetries(driver, '-ios class chain:**/XCUIElementTypeOther[`name == "By signing up, you agree to FarmByte\'s Terms of Use  and  Privacy Policy. ."`]/XCUIElementTypeOther[1]', 'Terms and Conditions');
+    await driver.pause(1000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_terms_accepted.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 25: Click Sign Up
+    console.log("Step 25: Click Sign Up");
+    await clickWithRetries(driver, '~   Sign Up  ', 'Sign Up button');
+    await driver.pause(3000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_sign_up_final_clicked.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    // Step 26: Proceed to KYC verification
+    console.log("Step 26: Proceed to KYC verification");
+    await clickWithRetries(driver, '~   Proceed to KYC verification  ', 'Proceed to KYC verification');
+    await driver.pause(2000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_kyc_verification_clicked.png`);
+    await driver.saveScreenshot(screenshotPath);
 
     // Step 27: Start KYC
     console.log("Step 27: Start KYC");
@@ -539,9 +912,9 @@ async function main() {
     // Write results to Excel
     console.log("📊 Writing results to Excel...");
     await writeResultToExcel(
-      'iOS_Individual_SignUp',
-      'TC001',
-      'iOS_Individual_SignUp_Email_HappyFlow',
+      'iOS_Company_SignUp_AppleId',
+      'TC008',
+      'iOS_Company_SignUp_AppleId_HappyFlow',
       testResult,
       screenshotPath,
       'iOS_SignUp'

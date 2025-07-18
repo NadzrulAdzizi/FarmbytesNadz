@@ -130,6 +130,11 @@ async function main() {
     screenshotPath = path.join(screenshotDir, `step${step++}_gmail_account_selected.png`);
     await driver.saveScreenshot(screenshotPath);
 
+    // Step 5: Verify deletion success (optional - check for confirmation message)
+    console.log("Step 5: Verify deletion process");
+    await driver.pause(2000);
+    await driver.saveScreenshot(path.join(screenshotDir, `step${step++}_deletion_complete.png`));
+
 
   } catch (err) {
     testResult = 'FAIL';
