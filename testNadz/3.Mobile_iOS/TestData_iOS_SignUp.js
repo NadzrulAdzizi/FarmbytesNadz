@@ -21,8 +21,9 @@ export function generateUniqueTestData() {
     //Company
     companyName: `Autotest${randomId}`,
     companyRegistrationNo: `12345678${String(randomId).padStart(2, '0')}`,
-    fullNameCompany: `Nadzrul Apple${String(randomId).padStart(4, '0')}`
-
+    fullNameCompany: `Nadzrul Apple${String(randomId).padStart(4, '0')}`,
+    GmailName: `Mohd Nadzrul Adzizi`,
+    FBName: `Fbc Autojr`
   };
 }
 

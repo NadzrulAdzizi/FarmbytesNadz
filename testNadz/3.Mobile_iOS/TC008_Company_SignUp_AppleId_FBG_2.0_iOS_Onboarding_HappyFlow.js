@@ -195,9 +195,9 @@ async function main() {
     console.log("🔄 Auto-generated test data:", testData);
 
     // ============================================
-    // TC001: iOS INDIVIDUAL SIGN UP WITH EMAIL
+    // TC001: iOS COMPANY SIGN UP WITH APPLE ID
     // ============================================
-    console.log("🚀 Starting TC001: iOS Individual Sign Up with Email");
+    console.log("🚀 Starting TC001: iOS COMPANY Sign Up with APPLEID");
 
     // Step 1: Launch FarmByte App (corrected selector)
     console.log("Step 1: Launch FarmByte App");

@@ -173,7 +173,7 @@ async function main() {
     "appium:udid": "00008130-000165AC3E79001C",
   };
 
-  const screenshotDir = path.resolve('./screenshots/Mobile_iOS_SignIn_AppleId');
+  const screenshotDir = path.resolve('./screenshots/Mobile_iOS_SignIn_FB');
   if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir, { recursive: true });
 
   let driver;
@@ -195,7 +195,7 @@ async function main() {
     console.log("🔄 Auto-generated test data:", testData);
 
     // ============================================
-    // TC001: iOS INDIVIDUAL SIGN IN WITH APPLE ID
+    // TC001: iOS INDIVIDUAL SIGN IN WITH FACEBOOK
     // ============================================
     console.log("🚀 Starting TC001: iOS Individual Sign Up with Email");
 
@@ -206,9 +206,9 @@ async function main() {
     screenshotPath = path.join(screenshotDir, `step${step++}_app_launched.png`);
     await driver.saveScreenshot(screenshotPath);
 
-    // Step 2: Click Sign In with Apple ID
-    console.log("Step 2: Click Sign In with Apple ID");
-    await clickWithRetries(driver, '(//XCUIElementTypeOther[@name="Log in with Apple"])[2]');
+    // Step 2: Click Sign In with Gmail
+    console.log("Step 2: Click Sign In with Gmail");
+    await clickWithRetries(driver, '//XCUIElementTypeOther[@name="Log in with Facebook "]');
     await driver.pause(2000);
     screenshotPath = path.join(screenshotDir, `step${step++}_sign_up_clicked.png`);
     await driver.saveScreenshot(screenshotPath);
@@ -219,26 +219,14 @@ async function main() {
     await driver.pause(1000);
     screenshotPath = path.join(screenshotDir, `step${step++}_full_name_filled.png`);
     await driver.saveScreenshot(screenshotPath);
-
-    // Step 5: Sign in with Passcode
-    console.log("Step 5: Sign in with Passcode");
-    await clickWithRetries(driver, '//XCUIElementTypeOther[@name="AUTHORIZE_BUTTON_TITLE"]/XCUIElementTypeOther');
+ 
+    // Step 4.2: Click Continue as Facebook
+    console.log("Step 4: Click Continue");
+    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="Continue as Fbc"]');
     await driver.pause(1000);
-    screenshotPath = path.join(screenshotDir, `step${step++}_email_filled.png`);
+    screenshotPath = path.join(screenshotDir, `step${step++}_full_name_filled.png`);
     await driver.saveScreenshot(screenshotPath);
-
-    // Step 6: Click 9 six times
-    console.log("Step 6: Click 9 six times");
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await driver.pause(1000);
-    screenshotPath = path.join(screenshotDir, `step${step++}_phone_number_filled.png`);
-    await driver.saveScreenshot(screenshotPath);
-
+ 
     // Step 48: Navigate to dashboard
     console.log("Step 48: Navigate to dashboard");
     await driver.pause(2000);
@@ -278,9 +266,9 @@ async function main() {
     // Write results to Excel
     console.log("📊 Writing results to Excel...");
     await writeResultToExcel(
-      'iOS_SignIn_AppleId',
-      'TC009',
-      'iOS_SignIn_AppleId_HappyFlow',
+      'iOS_SignIn_FB',
+      'TC011',
+      'iOS_SignIn_FB_HappyFlow',
       testResult,
       screenshotPath,
       'iOS_SignIn'

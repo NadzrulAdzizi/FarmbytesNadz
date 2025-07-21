@@ -173,7 +173,7 @@ async function main() {
     "appium:udid": "00008130-000165AC3E79001C",
   };
 
-  const screenshotDir = path.resolve('./screenshots/Mobile_iOS_SignIn_AppleId');
+  const screenshotDir = path.resolve('./screenshots/Mobile_iOS_SignIn_Email');
   if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir, { recursive: true });
 
   let driver;
@@ -195,9 +195,9 @@ async function main() {
     console.log("🔄 Auto-generated test data:", testData);
 
     // ============================================
-    // TC001: iOS INDIVIDUAL SIGN IN WITH APPLE ID
+    // TC001: iOS INDIVIDUAL SIGN IN WITH EMAIL
     // ============================================
-    console.log("🚀 Starting TC001: iOS Individual Sign Up with Email");
+    console.log("🚀 Starting TC001: iOS Individual Sign In with Email");
 
     // Step 1: Launch FarmByte App (corrected selector)
     console.log("Step 1: Launch FarmByte App");
@@ -206,39 +206,97 @@ async function main() {
     screenshotPath = path.join(screenshotDir, `step${step++}_app_launched.png`);
     await driver.saveScreenshot(screenshotPath);
 
-    // Step 2: Click Sign In with Apple ID
-    console.log("Step 2: Click Sign In with Apple ID");
-    await clickWithRetries(driver, '(//XCUIElementTypeOther[@name="Log in with Apple"])[2]');
+    // Step 2: Click Sign In with Gmail
+    console.log("Step 2: Click Sign In with Gmail");
+    await clickWithRetries(driver, '~   Log in with Email  ', 'Log in with Email');
     await driver.pause(2000);
     screenshotPath = path.join(screenshotDir, `step${step++}_sign_up_clicked.png`);
     await driver.saveScreenshot(screenshotPath);
 
-    // Step 4.1: Click Continue
-    console.log("Step 4: Click Continue");
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="Continue"]');
+    // Step 3: Fill Email 
+    console.log("Step 5: Fill Email");
+    await fillTextWithRetries(driver, '//XCUIElementTypeTextField', "autotest617@gmail.com" , 'Email');
     await driver.pause(1000);
-    screenshotPath = path.join(screenshotDir, `step${step++}_full_name_filled.png`);
+    screenshotPath = path.join(screenshotDir, `step${step++}_email_filled.png`);
     await driver.saveScreenshot(screenshotPath);
-
-    // Step 5: Sign in with Passcode
-    console.log("Step 5: Sign in with Passcode");
-    await clickWithRetries(driver, '//XCUIElementTypeOther[@name="AUTHORIZE_BUTTON_TITLE"]/XCUIElementTypeOther');
+    
+    // Step 3: Fill Password 
+    console.log("Step 5: Fill Password");
+    await fillTextWithRetries(driver, '//XCUIElementTypeSecureTextField', "P@ssw0rd1" , 'Password');
     await driver.pause(1000);
     screenshotPath = path.join(screenshotDir, `step${step++}_email_filled.png`);
     await driver.saveScreenshot(screenshotPath);
 
-    // Step 6: Click 9 six times
-    console.log("Step 6: Click 9 six times");
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
+    // Step 4.1: Click Title
+    console.log("Step 4: Click Title");
+    await clickWithRetries(driver, '**/XCUIElementTypeStaticText[`name == \"Welcome back\"`]');
     await driver.pause(1000);
-    screenshotPath = path.join(screenshotDir, `step${step++}_phone_number_filled.png`);
+    screenshotPath = path.join(screenshotDir, `step${step++}_full_name_filled.png`);
     await driver.saveScreenshot(screenshotPath);
 
+    // Step 4.1: Click Login - FIXED
+    console.log("Step 4: Click Login");
+    
+    // Try multiple selectors for the login button
+    const loginButtonSelectors = [
+      '~   Log in with Email  ',  // Accessibility ID (most common)
+      '~ Log in with Email ',     // Without extra spaces
+      '~Log in with Email',       // Simple version
+      '//XCUIElementTypeButton[@name="   Log in with Email  "]',  // XPath
+      '//XCUIElementTypeOther[@name="   Log in with Email  "]',   // XPath Other
+      '//XCUIElementTypeButton[contains(@name, "Log in")]',       // XPath contains
+      '//XCUIElementTypeButton[contains(@name, "Email")]'         // XPath contains Email
+    ];
+    
+    let loginClicked = false;
+    
+    for (let i = 0; i < loginButtonSelectors.length; i++) {
+      try {
+        console.log(`🔄 Trying login button selector ${i + 1}: ${loginButtonSelectors[i]}`);
+        
+        const element = await driver.$(loginButtonSelectors[i]);
+        
+        if (await element.isExisting()) {
+          console.log(`✅ Login button found with selector ${i + 1}`);
+          await element.click();
+          loginClicked = true;
+          console.log(`✅ Login button clicked successfully`);
+          break;
+        } else {
+          console.log(`❌ Login button not found with selector ${i + 1}`);
+        }
+      } catch (error) {
+        console.log(`❌ Selector ${i + 1} failed: ${error.message}`);
+        continue;
+      }
+    }
+    
+    // If all selectors fail, try coordinate click
+    if (!loginClicked) {
+      console.log("⚠️ All login button selectors failed, trying coordinate click");
+      try {
+        // Click at bottom center where login button usually is
+        await driver.action('pointer')
+          .move({ duration: 0, x: 200, y: 600 })
+          .down({ button: 0 })
+          .up({ button: 0 })
+          .perform();
+        
+        console.log("✅ Coordinate click performed for login button");
+        loginClicked = true;
+      } catch (coordError) {
+        console.log(`❌ Coordinate click failed: ${coordError.message}`);
+      }
+    }
+    
+    if (!loginClicked) {
+      console.log("❌ All attempts to click login button failed");
+    }
+    
+    await driver.pause(3000); // Wait for login process
+    screenshotPath = path.join(screenshotDir, `step${step++}_login_clicked.png`);
+    await driver.saveScreenshot(screenshotPath);
+    
     // Step 48: Navigate to dashboard
     console.log("Step 48: Navigate to dashboard");
     await driver.pause(2000);
@@ -278,9 +336,9 @@ async function main() {
     // Write results to Excel
     console.log("📊 Writing results to Excel...");
     await writeResultToExcel(
-      'iOS_SignIn_AppleId',
-      'TC009',
-      'iOS_SignIn_AppleId_HappyFlow',
+      'iOS_SignIn_Email',
+      'TC012',
+      'iOS_SignIn_Email_HappyFlow',
       testResult,
       screenshotPath,
       'iOS_SignIn'

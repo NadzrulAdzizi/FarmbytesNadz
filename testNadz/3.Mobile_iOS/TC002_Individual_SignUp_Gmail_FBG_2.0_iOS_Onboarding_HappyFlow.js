@@ -173,7 +173,7 @@ async function main() {
     "appium:udid": "00008130-000165AC3E79001C",
   };
 
-  const screenshotDir = path.resolve('./screenshots/Mobile_iOS_SignUp_AppleId_Individual');
+  const screenshotDir = path.resolve('./screenshots/Mobile_iOS_SignUp_Gmail_Individual');
   if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir, { recursive: true });
 
   let driver;
@@ -195,7 +195,7 @@ async function main() {
     console.log("🔄 Auto-generated test data:", testData);
 
     // ============================================
-    // TC001: iOS INDIVIDUAL SIGN UP WITH APPLE ID
+    // TC001: iOS INDIVIDUAL SIGN UP WITH GMAIL
     // ============================================
     console.log("🚀 Starting TC001: iOS Individual Sign Up with Email");
 
@@ -220,9 +220,9 @@ async function main() {
     screenshotPath = path.join(screenshotDir, `step${step++}_full_name_filled.png`);
     await driver.saveScreenshot(screenshotPath);
 
-    // Step 3: Click Sign up with Apple ID
-    console.log("Step 3: Click Sign up with Apple ID");
-    await clickWithRetries(driver, '//XCUIElementTypeOther[@name="Sign up with Apple"]');
+    // Step 3: Click Sign up with Gmail
+    console.log("Step 3: Click Sign up with Gmail");
+    await clickWithRetries(driver, '//XCUIElementTypeOther[@name="Sign up with Google "]');
     await driver.pause(2000);
     screenshotPath = path.join(screenshotDir, `step${step++}_sign_up_with_email_clicked.png`);
     await driver.saveScreenshot(screenshotPath);
@@ -234,29 +234,10 @@ async function main() {
     screenshotPath = path.join(screenshotDir, `step${step++}_full_name_filled.png`);
     await driver.saveScreenshot(screenshotPath);
 
-    // Step 5: Sign in with Passcode
-    console.log("Step 5: Sign in with Passcode");
-    await clickWithRetries(driver, '//XCUIElementTypeOther[@name="AUTHORIZE_BUTTON_TITLE"]/XCUIElementTypeOther');
-    await driver.pause(1000);
-    screenshotPath = path.join(screenshotDir, `step${step++}_email_filled.png`);
-    await driver.saveScreenshot(screenshotPath);
-
-    // Step 6: Click 9 six times
-    console.log("Step 6: Click 9 six times");
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="9"]');
-    await driver.pause(1000);
-    screenshotPath = path.join(screenshotDir, `step${step++}_phone_number_filled.png`);
-    await driver.saveScreenshot(screenshotPath);
-
     // Step 7: Fill Name and Phone Number
     console.log("Step 7: Fill Name and Phone Number");
     await driver.pause(5000);
-    await fillTextWithRetries(driver, '//XCUIElementTypeTextField[@value=" "]', testData.fullNameCompany, 'Full Company Name');
+    await fillTextWithRetries(driver, '//XCUIElementTypeTextField[@value=" "]', testData.GmailName, 'Full Gmail Name');
     await clickWithRetries(driver, '~Done', 'Done button');
     await fillTextWithRetries(driver, '(//XCUIElementTypeOther[@name="Phone Number"])[1]', testData.phoneNumber, 'Phone Number');
     await clickWithRetries(driver, '~Done', 'Done button');
@@ -925,9 +906,9 @@ async function main() {
     // Write results to Excel
     console.log("📊 Writing results to Excel...");
     await writeResultToExcel(
-      'iOS_Individual_SignUp_AppleId',
-      'TC004',
-      'iOS_Individual_SignUp_AppleId_HappyFlow',
+      'iOS_Individual_SignUp_Gmail',
+      'TC002',
+      'iOS_Individual_SignUp_Gmail_HappyFlow',
       testResult,
       screenshotPath,
       'iOS_SignUp'
