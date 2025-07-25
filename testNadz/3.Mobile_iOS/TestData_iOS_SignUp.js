@@ -417,3 +417,333 @@ export async function selectBankSimple(driver) {
     return { success: false, selectedBank: null };
   }
 }
+
+
+import XLSX from 'xlsx'; // Change this line - remove the * as
+import path from 'path';
+import fs from 'fs';
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+export async function clickWithRetries(driver, selector, elementName = 'Element', maxRetries = 3) {
+  console.log(`🔄 Clicking ${elementName}...`);
+  
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const element = await driver.$(selector);
+      
+      if (await element.isExisting()) {
+        await element.click();
+        console.log(`✅ ${elementName} clicked successfully`);
+        return true;
+      } else {
+        console.log(`❌ ${elementName} not found, attempt ${i + 1}/${maxRetries}`);
+      }
+    } catch (error) {
+      console.log(`❌ Click attempt ${i + 1}/${maxRetries} failed: ${error.message}`);
+      
+      if (i < maxRetries - 1) {
+        await driver.pause(1000);
+      }
+    }
+  }
+  
+  throw new Error(`Failed to click ${elementName} after ${maxRetries} attempts`);
+}
+
+export async function fillTextWithRetries(driver, selector, text, elementName = 'Text Field', maxRetries = 3) {
+  console.log(`📝 Filling ${elementName} with: ${text}`);
+  
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const element = await driver.$(selector);
+      
+      if (await element.isExisting()) {
+        await element.clearValue();
+        await element.setValue(text);
+        console.log(`✅ ${elementName} filled successfully`);
+        return true;
+      } else {
+        console.log(`❌ ${elementName} not found, attempt ${i + 1}/${maxRetries}`);
+      }
+    } catch (error) {
+      console.log(`❌ Fill attempt ${i + 1}/${maxRetries} failed: ${error.message}`);
+      
+      if (i < maxRetries - 1) {
+        await driver.pause(1000);
+      }
+    }
+  }
+  
+  throw new Error(`Failed to fill ${elementName} after ${maxRetries} attempts`);
+}
+
+export async function swipeGesture(driver, startX, startY, endX, endY) {
+  console.log(`📱 Performing swipe gesture from (${startX}, ${startY}) to (${endX}, ${endY})`);
+  
+  try {
+    await driver.action('pointer')
+      .move({ duration: 0, x: startX, y: startY })
+      .down({ button: 0 })
+      .move({ duration: 1000, x: endX, y: endY })
+      .up({ button: 0 })
+      .perform();
+    
+    console.log('✅ Swipe gesture performed successfully');
+    return true;
+  } catch (error) {
+    console.log(`❌ Swipe gesture failed: ${error.message}`);
+    return false;
+  }
+}
+
+export async function writeResultToExcel(module, tcId, testScenario, result, screenshotPath, sheetPrefix = 'Mobile_iOS') {
+  console.log(`📊 Writing test results to Excel...`);
+  
+  const filePath = path.join(process.cwd(), 'AutoReg_FBG2.0_Happy_Flow_E2E_Mobile_iOS.xlsx');
+  
+  try {
+    let workbook;
+    const sheetName = `${sheetPrefix}_Test_Results`;
+    
+    console.log(`📁 Excel file path: ${filePath}`);
+    console.log(`📋 Sheet name: ${sheetName}`);
+    
+    // Check if XLSX is properly imported
+    if (!XLSX || !XLSX.readFile) {
+      throw new Error('XLSX library not properly imported');
+    }
+    
+    // Read or create workbook
+    if (fs.existsSync(filePath)) {
+      console.log('📖 Reading existing Excel file...');
+      workbook = XLSX.readFile(filePath);
+    } else {
+      console.log('📝 Creating new Excel workbook...');
+      workbook = XLSX.utils.book_new();
+    }
+    
+    // Get or create worksheet
+    let worksheet;
+    if (workbook.Sheets[sheetName]) {
+      console.log('📋 Using existing worksheet...');
+      worksheet = workbook.Sheets[sheetName];
+    } else {
+      console.log('📝 Creating new worksheet...');
+      worksheet = XLSX.utils.aoa_to_sheet([
+        ['Module', 'TC ID', 'Test Scenario', 'Timestamp', 'Result', 'Screenshot']
+      ]);
+      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    }
+    
+    // Add new data
+    const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    const timestamp = new Date().toLocaleString();
+    const newRow = [module, tcId, testScenario, timestamp, result, screenshotPath || 'N/A'];
+    
+    console.log(`📝 Adding new row: [${newRow.join(', ')}]`);
+    sheetData.push(newRow);
+    
+    // Update worksheet and save
+    const newWorksheet = XLSX.utils.aoa_to_sheet(sheetData);
+    workbook.Sheets[sheetName] = newWorksheet;
+    
+    console.log(`💾 Writing to Excel file: ${filePath}`);
+    XLSX.writeFile(workbook, filePath);
+    
+    console.log(`✅ Excel file updated successfully`);
+    return true;
+    
+  } catch (error) {
+    console.error(`❌ Excel write failed: ${error.message}`);
+    console.error(`❌ Error stack: ${error.stack}`);
+    
+    // Enhanced fallback to CSV
+    try {
+      console.log('📋 Falling back to CSV...');
+      const csvPath = path.join(process.cwd(), `test_results_backup_${Date.now()}.csv`);
+      const timestamp = new Date().toLocaleString();
+      const csvRow = `"${module}","${tcId}","${testScenario}","${timestamp}","${result}","${screenshotPath || 'N/A'}"\n`;
+      
+      if (!fs.existsSync(csvPath)) {
+        fs.writeFileSync(csvPath, '"Module","TC ID","Test Scenario","Timestamp","Result","Screenshot"\n');
+        console.log(`📝 Created new CSV file: ${csvPath}`);
+      }
+      
+      fs.appendFileSync(csvPath, csvRow);
+      console.log(`✅ CSV backup created successfully: ${csvPath}`);
+      return true;
+      
+    } catch (csvError) {
+      console.error(`❌ All write methods failed: ${csvError.message}`);
+      return false;
+    }
+  }
+}
+
+// iOS Class Chain selector helper
+export function iosClassChain(selector) {
+  return `-ios class chain:${selector}`;
+}
+
+
+export async function swipeUp(driver, startX = 200, startY = 600, endX = 200, endY = 300) {
+  console.log(`📱 Performing swipe up gesture from (${startX}, ${startY}) to (${endX}, ${endY})`);
+  
+  try {
+    // Method 1: Using TouchAction (WebDriverIO v7+)
+    await driver.touchAction([
+      { action: 'press', x: startX, y: startY },
+      { action: 'wait', ms: 1000 },
+      { action: 'moveTo', x: endX, y: endY },
+      { action: 'release' }
+    ]);
+    
+    console.log('✅ Swipe up gesture performed successfully');
+    return true;
+  } catch (error1) {
+    console.log(`⚠️ TouchAction swipe failed: ${error1.message}, trying alternative...`);
+    
+    try {
+      // Method 2: Using W3C Actions
+      await driver.performActions([{
+        type: 'pointer',
+        id: 'finger1',
+        parameters: { pointerType: 'touch' },
+        actions: [
+          { type: 'pointerMove', duration: 0, x: startX, y: startY },
+          { type: 'pointerDown', button: 0 },
+          { type: 'pause', duration: 100 },
+          { type: 'pointerMove', duration: 1000, x: endX, y: endY },
+          { type: 'pointerUp', button: 0 }
+        ]
+      }]);
+      
+      console.log('✅ W3C Actions swipe up performed successfully');
+      return true;
+    } catch (error2) {
+      console.log(`⚠️ W3C Actions swipe failed: ${error2.message}, trying Appium method...`);
+      
+      try {
+        // Method 3: Using Appium's mobile command
+        await driver.execute('mobile: swipe', {
+          direction: 'up',
+          startX: startX,
+          startY: startY,
+          endX: endX,
+          endY: endY,
+          duration: 1000
+        });
+        
+        console.log('✅ Appium mobile swipe up performed successfully');
+        return true;
+      } catch (error3) {
+        console.log(`❌ All swipe methods failed: ${error3.message}`);
+        return false;
+      }
+    }
+  }
+}
+
+export async function swipeDown(driver, startX = 200, startY = 300, endX = 200, endY = 600) {
+  console.log(`📱 Performing swipe down gesture from (${startX}, ${startY}) to (${endX}, ${endY})`);
+  
+  try {
+    await driver.touchAction([
+      { action: 'press', x: startX, y: startY },
+      { action: 'wait', ms: 1000 },
+      { action: 'moveTo', x: endX, y: endY },
+      { action: 'release' }
+    ]);
+    
+    console.log('✅ Swipe down gesture performed successfully');
+    return true;
+  } catch (error) {
+    console.log(`❌ Swipe down failed: ${error.message}`);
+    return false;
+  }
+}
+
+export async function swipeLeft(driver, startX = 300, startY = 400, endX = 100, endY = 400) {
+  console.log(`📱 Performing swipe left gesture from (${startX}, ${startY}) to (${endX}, ${endY})`);
+  
+  try {
+    await driver.touchAction([
+      { action: 'press', x: startX, y: startY },
+      { action: 'wait', ms: 1000 },
+      { action: 'moveTo', x: endX, y: endY },
+      { action: 'release' }
+    ]);
+    
+    console.log('✅ Swipe left gesture performed successfully');
+    return true;
+  } catch (error) {
+    console.log(`❌ Swipe left failed: ${error.message}`);
+    return false;
+  }
+}
+
+export async function swipeRight(driver, startX = 100, startY = 400, endX = 300, endY = 400) {
+  console.log(`📱 Performing swipe right gesture from (${startX}, ${startY}) to (${endX}, ${endY})`);
+  
+  try {
+    await driver.touchAction([
+      { action: 'press', x: startX, y: startY },
+      { action: 'wait', ms: 1000 },
+      { action: 'moveTo', x: endX, y: endY },
+      { action: 'release' }
+    ]);
+    
+    console.log('✅ Swipe right gesture performed successfully');
+    return true;
+  } catch (error) {
+    console.log(`❌ Swipe right failed: ${error.message}`);
+    return false;
+  }
+}
+
+// Generic swipe function with retry logic
+export async function performSwipe(driver, direction = 'up', retries = 3) {
+  console.log(`📱 Performing swipe ${direction} with ${retries} retries...`);
+  
+  for (let i = 0; i < retries; i++) {
+    try {
+      let success = false;
+      
+      switch (direction.toLowerCase()) {
+        case 'up':
+          success = await swipeUp(driver);
+          break;
+        case 'down':
+          success = await swipeDown(driver);
+          break;
+        case 'left':
+          success = await swipeLeft(driver);
+          break;
+        case 'right':
+          success = await swipeRight(driver);
+          break;
+        default:
+          console.log(`❌ Unknown swipe direction: ${direction}`);
+          return false;
+      }
+      
+      if (success) {
+        console.log(`✅ Swipe ${direction} successful on attempt ${i + 1}`);
+        return true;
+      }
+      
+    } catch (error) {
+      console.log(`❌ Swipe attempt ${i + 1}/${retries} failed: ${error.message}`);
+      
+      if (i < retries - 1) {
+        await driver.pause(1000);
+      }
+    }
+  }
+  
+  console.log(`❌ All swipe attempts failed after ${retries} retries`);
+  return false;
+}
