@@ -747,3 +747,150 @@ export async function performSwipe(driver, direction = 'up', retries = 3) {
   console.log(`❌ All swipe attempts failed after ${retries} retries`);
   return false;
 }
+
+
+// Add these functions to your TestData_iOS_SignUp.js file
+
+export async function fillRandomValue(driver, selector, minValue = 100, maxValue = 500, elementName = 'Value Field') {
+  console.log(`📝 Auto-filling ${elementName} with random value between ${minValue}-${maxValue}...`);
+  
+  // Generate random value
+  const randomValue = Math.floor(Math.random() * (maxValue - minValue + 1)) + minValue;
+  console.log(`🎲 Generated random value: ${randomValue}`);
+  
+  try {
+    const element = await driver.$(selector);
+    
+    if (await element.isExisting()) {
+      await element.clearValue();
+      await element.setValue(randomValue.toString());
+      console.log(`✅ ${elementName} filled with: ${randomValue}`);
+      return randomValue;
+    } else {
+      console.log(`❌ ${elementName} not found`);
+      return null;
+    }
+  } catch (error) {
+    console.log(`❌ Auto-fill failed: ${error.message}`);
+    return null;
+  }
+}
+
+export async function selectNextAvailableDate(driver, maxRetries = 7) {
+  console.log("📅 Auto-selecting next available date...");
+  
+  // Get current date
+  const today = new Date();
+  
+  for (let dayOffset = 0; dayOffset < maxRetries; dayOffset++) {
+    const targetDate = new Date(today);
+    targetDate.setDate(today.getDate() + dayOffset);
+    
+    const year = targetDate.getFullYear();
+    const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const day = String(targetDate.getDate()).padStart(2, '0');
+    const dateString = `${year}-${month}-${day}`;
+    
+    console.log(`🔍 Trying date ${dayOffset === 0 ? '(today)' : `(+${dayOffset} days)`}: ${dateString}`);
+    
+    const dateSelectors = [
+      `//XCUIElementTypeButton[@name="undefined.day_${dateString}"]`,
+      `//XCUIElementTypeButton[contains(@name, "${dateString}")]`,
+      `//XCUIElementTypeButton[contains(@name, "${day}")]`,
+      `//XCUIElementTypeOther[@name="undefined.day_${dateString}"]`,
+      `//XCUIElementTypeCell[contains(@name, "${dateString}")]`
+    ];
+    
+    for (const selector of dateSelectors) {
+      try {
+        const dateElement = await driver.$(selector);
+        
+        if (await dateElement.isExisting() && await dateElement.isDisplayed()) {
+          await dateElement.click();
+          console.log(`✅ Successfully selected date: ${dateString} with selector: ${selector}`);
+          return dateString;
+        }
+      } catch (error) {
+        continue;
+      }
+    }
+  }
+  
+  console.log("⚠️ No available dates found, using coordinate tap fallback");
+  
+  // Fallback: Tap at common date picker locations
+  const dateCoordinates = [
+    { x: 200, y: 400 }, // Center
+    { x: 150, y: 400 }, // Left
+    { x: 250, y: 400 }, // Right
+    { x: 200, y: 350 }, // Above center
+    { x: 200, y: 450 }  // Below center
+  ];
+  
+  for (const coord of dateCoordinates) {
+    try {
+      await driver.touchAction([
+        { action: 'tap', x: coord.x, y: coord.y }
+      ]);
+      console.log(`✅ Fallback date tap at (${coord.x}, ${coord.y})`);
+      await driver.pause(1000);
+      return 'fallback-date';
+    } catch (error) {
+      continue;
+    }
+  }
+  
+  console.log("❌ All date selection methods failed");
+  return null;
+}
+
+export async function selectAvailableTimeSlot(driver) {
+  console.log("⏰ Auto-selecting available time slot...");
+  
+  const timeSlots = [
+    '02:00PM - 05:00PM',
+    '09:00AM - 12:00PM',
+    '08:00AM - 11:00AM',
+    '10:00AM - 01:00PM',
+    '01:00PM - 04:00PM',
+    '03:00PM - 06:00PM',
+    '11:00AM - 02:00PM'
+  ];
+  
+  for (const timeSlot of timeSlots) {
+    const timeSelectors = [
+      `//XCUIElementTypeOther[@name="${timeSlot}"]`,
+      `//XCUIElementTypeButton[@name="${timeSlot}"]`,
+      `//XCUIElementTypeStaticText[@name="${timeSlot}"]`,
+      `//XCUIElementTypeCell[contains(@name, "${timeSlot}")]`
+    ];
+    
+    for (const selector of timeSelectors) {
+      try {
+        const timeElement = await driver.$(selector);
+        
+        if (await timeElement.isExisting() && await timeElement.isDisplayed()) {
+          await timeElement.click();
+          console.log(`✅ Successfully selected time slot: ${timeSlot}`);
+          return timeSlot;
+        }
+      } catch (error) {
+        continue;
+      }
+    }
+  }
+  
+  console.log("⚠️ No predefined time slots found, trying coordinate tap");
+  
+  // Fallback coordinate tap for time selection
+  try {
+    await driver.touchAction([
+      { action: 'tap', x: 200, y: 500 }
+    ]);
+    console.log("✅ Fallback time slot tap performed");
+    return 'fallback-time';
+  } catch (error) {
+    console.log("❌ Time slot selection failed");
+    return null;
+  }
+}

@@ -147,9 +147,9 @@ async function main() {
     console.log("Step 10: Select Date & Time");
     await clickWithRetries(driver, '//XCUIElementTypeOther[@name=" Select date & time"]');
     await driver.pause(1000);
-    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="undefined.day_2025-07-26"]', 'Select Date');// Select next available date automatically
+    await clickWithRetries(driver, '//XCUIElementTypeButton[@name="undefined.day_2025-07-29"]', 'Select Date');// Select next available date automatically
     await driver.pause(1000);
-    await clickWithRetries(driver, '//XCUIElementTypeOther[@name="02:00PM - 05:00PM"]', 'Select Time Slot');
+    await clickWithRetries(driver, '//XCUIElementTypeOther[@name="02:00PM - 05:00PM"]', 'Select Time Slot');// Select next available time slot automatically
     await driver.pause(1000);
     screenshotPath = path.join(screenshotDir, `step${step++}_datetime_selected.png`);
     await driver.saveScreenshot(screenshotPath);
