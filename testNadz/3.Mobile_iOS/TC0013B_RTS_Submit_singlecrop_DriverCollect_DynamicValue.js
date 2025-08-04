@@ -23,7 +23,7 @@ async function main() {
     "appium:udid": "00008130-000165AC3E79001C",
   };
 
-  const screenshotDir = path.resolve('./screenshots/Mobile_iOS_TC0013_SubmitSingleCrop');
+  const screenshotDir = path.resolve('./screenshots/Mobile_iOS_TC0013B_SubmitSingleCrop_DriverCollect');
   if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir, { recursive: true });
 
   let driver;
@@ -424,7 +424,7 @@ async function main() {
     console.log("📊 Writing results to Excel...");
     const writeSuccess = await writeResultToExcel(
       'iOS_SubmitSingleCrop',
-      'TC0013',
+      'TC0013B',
       'iOS_Submit_Single_Crop_Driver_Collect_HappyFlow',
       testResult,
       screenshotPath,
