@@ -23,7 +23,7 @@ async function main() {
     "appium:udid": "00008130-000165AC3E79001C",
   };
 
-  const screenshotDir = path.resolve('./screenshots/Mobile_iOS_TC0014_SubmitSingleCrop_SelfDropOff');
+  const screenshotDir = path.resolve('./screenshots/Mobile_iOS_TC0015A_EditCropQuantityBeforeSubmit');
   if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir, { recursive: true });
 
   let driver;
@@ -154,11 +154,11 @@ async function main() {
     screenshotPath = path.join(screenshotDir, `step${step++}_view_request_clicked.png`);
     await driver.saveScreenshot(screenshotPath);
 
-    // Step 9: Click on Self Drop-Off
-    console.log("Step 9: Click on Self Drop-Off");
-    await clickWithRetries(driver, '//XCUIElementTypeOther[@name="Self Drop-Off"]');
+    // Step 9: Click on Driver Collect
+    console.log("Step 9: Click on Driver Collect");
+    await clickWithRetries(driver, '//XCUIElementTypeOther[@name="Driver Collect"]', 'Driver Collect Option');
     await driver.pause(1000);
-    screenshotPath = path.join(screenshotDir, `step${step++}_self_drop_off_selected.png`);
+    screenshotPath = path.join(screenshotDir, `step${step++}_driver_collect_selected.png`);
     await driver.saveScreenshot(screenshotPath);
 
     // Step 10: Automated Date & Time Selection
@@ -237,8 +237,7 @@ async function main() {
     await driver.pause(1500);
     screenshotPath = path.join(screenshotDir, `step${step++}_date_selected.png`);
     await driver.saveScreenshot(screenshotPath);
-
-    /*
+    
     // Auto-select time slot (rotate between morning and afternoon)
     console.log("⏰ Auto-selecting time slot...");
     
@@ -364,14 +363,53 @@ async function main() {
     await driver.pause(2000);
     screenshotPath = path.join(screenshotDir, `step${step++}_datetime_confirmed.png`);
     await driver.saveScreenshot(screenshotPath);
-    */
-    //Step 10: CLick Confirm 
-    console.log("Step 10: Click Confirm");
-    await clickWithRetries(driver, '(//XCUIElementTypeOther[@name="Horizontal scroll bar, 1 page"])[5]');
-    await driver.pause(2000);
-    screenshotPath = path.join(screenshotDir, `step${step++}_datetime_confirmed.png`);
+
+    //Edit Crop Quantity Before Submit - Dynamic Value
+    console.log("Step: Edit Crop Quantity Before Submit - Dynamic Value");
+    await clickWithRetries(driver, '//XCUIElementTypeOther[@name=""]');
+    await driver.pause(1000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_edit_crop_quantity.png`);
     await driver.saveScreenshot(screenshotPath);
 
+    // Fill value with random amount
+    console.log("Auto-Fill Random Value");
+    
+    const filledValue2 = await fillRandomValue(
+      driver, 
+      '//XCUIElementTypeTextField[@value]', 
+      150,    // minimum value
+      300,    // maximum value
+      'Crop Value Field'
+    );
+
+    if (filledValue2) {
+      console.log(`🎯 Successfully filled value: ${filledValue2} kg`);
+    } else {
+      console.log("⚠️ Auto-fill failed, using fallback");
+      await fillTextWithRetries(driver, '//XCUIElementTypeTextField[@value]', "200", 'Value Field');
+    }
+    
+    await driver.pause(1000);
+    await clickWithRetries(driver, '~Done', 'Done button');
+    screenshotPath = path.join(screenshotDir, `step${step++}_value_filled_${filledValue2 || 'fallback'}.png`);
+    await driver.saveScreenshot(screenshotPath);
+    
+    // FIXED: Swipe up to reveal more options
+    console.log("Step 6.5: Swipe up to reveal Add Item button");
+    const swipeSuccess2 = await performSwipe(driver, 'up', 3);
+    if (!swipeSuccess2) {
+      console.log("⚠️ Swipe failed, but continuing with test");
+    }
+    await driver.pause(1000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_after_swipe.png`);
+    await driver.saveScreenshot(screenshotPath);
+
+    //  Click Add Item - FIXED INDEX
+    console.log(" Click Add Item");
+    await clickWithRetries(driver, '//XCUIElementTypeOther[@name="   Add Item  "]');
+    await driver.pause(1000);
+    screenshotPath = path.join(screenshotDir, `step${step++}_item_added.png`);
+    await driver.saveScreenshot(screenshotPath);
 
     // Step 11: Confirm and Submit Request
     console.log("Step 11: Confirm and Submit Request");
@@ -432,8 +470,8 @@ async function main() {
     console.log("📊 Writing results to Excel...");
     const writeSuccess = await writeResultToExcel(
       'iOS_SubmitSingleCrop',
-      'TC0014',
-      'iOS_Submit_Single_Crop_Self_Drop_Off_HappyFlow',
+      'TC0015A',
+      'iOS_EditCropQuantityBeforeSubmit_HappyFlow',
       testResult,
       screenshotPath,
       'Mobile_iOS'
