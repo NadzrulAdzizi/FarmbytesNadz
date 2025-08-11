@@ -102,51 +102,78 @@ export async function fetchLatestOTPFromDiscord(driver) {
   }
 }
 
-// Alternative method - Scroll to bottom and get last element
+// Alternative - Page Source Method (Fixed)
 export async function fetchLatestOTPFromDiscordManual(driver) {
-  console.log("🔍 Manual approach - Get BOTTOM/LAST OTP...");
+  console.log("🔍 Page Source OTP Method (FIXED)...");
   
   try {
     // Open Discord
     await driver.activateApp('com.hammerandchisel.discord');
-    await driver.pause(4000);
+    await driver.pause(3000);
     
-    // Scroll to the very bottom multiple times
-    console.log("📱 Scrolling to bottom multiple times...");
-    for (let i = 0; i < 3; i++) {
-      await driver.execute('mobile: scroll', { direction: 'down' });
-      await driver.pause(1000);
-    }
+    // Go to otps
+    await clickWithRetries(driver, '~otps', 'otps Channel');
+    await driver.pause(2000);
     
-    // Get all text elements
-    const elements = await driver.$$('//XCUIElementTypeStaticText');
-    console.log(`📱 Found ${elements.length} text elements`);
-    
-    // Check elements from BOTTOM to TOP (reverse order)
-    for (let i = elements.length - 1; i >= 0; i--) {
+    // Scroll to bottom
+    console.log("📱 Scrolling to bottom...");
+    for (let i = 0; i < 5; i++) {
       try {
-        const text = await elements[i].getText();
-        console.log(`📝 Checking element ${i}: ${text}`);
-        
-        // Look for the exact pattern
-        if (text.includes('[FA][Staging]') && text.includes('Your one-time password is')) {
-          const otpMatch = text.match(/Your one-time password is\s*(\d{4})/);
-          if (otpMatch) {
-            console.log(`✅ Found BOTTOM/LAST OTP: ${otpMatch[1]}`);
-            console.log(`📍 From element ${i}: ${text}`);
-            return otpMatch[1];
-          }
-        }
+        await driver.performActions([{
+          type: 'pointer',
+          id: 'finger1',
+          parameters: { pointerType: 'touch' },
+          actions: [
+            { type: 'pointerMove', duration: 0, x: 20, y: 700 },
+            { type: 'pointerDown', button: 0 },
+            { type: 'pointerMove', duration: 400, x: 20, y: 100 },
+            { type: 'pointerUp', button: 0 }
+          ]
+        }]);
+        await driver.pause(300);
       } catch (error) {
         continue;
       }
     }
     
-    console.log("❌ No OTP found in manual search");
-    return "2068";
+    await driver.pause(3000);
+    
+    // Get page source
+    const pageSource = await driver.getPageSource();
+    
+    // Find ALL [FA][Staging] OTPs in page source
+    const stagingPattern = /\[FA\]\[Staging\][^]*?Your one-time password is\s*(\d{4})/g;
+    const allMatches = [];
+    let match;
+    
+    while ((match = stagingPattern.exec(pageSource)) !== null) {
+      allMatches.push({
+        otp: match[1],
+        position: match.index,
+        fullMatch: match[0]
+      });
+    }
+    
+    if (allMatches.length === 0) {
+      console.log("❌ No [FA][Staging] OTPs in page source");
+      return "2068";
+    }
+    
+    // Sort by position - HIGHEST position = LATEST (because Discord loads older messages first)
+    allMatches.sort((a, b) => b.position - a.position);
+    
+    console.log("📋 Page Source [FA][Staging] OTPs (sorted by position - HIGHEST = LATEST):");
+    allMatches.forEach((match, index) => {
+      console.log(`  ${index + 1}. OTP: ${match.otp} - Position: ${match.position}`);
+    });
+    
+    const latestOTP = allMatches[0].otp;
+    console.log(`🎯 PAGE SOURCE LATEST [FA][Staging]: ${latestOTP} (should be 6835)`);
+    
+    return latestOTP;
     
   } catch (error) {
-    console.error("❌ Manual search failed:", error.message);
+    console.error("❌ Page source method failed:", error.message);
     return "2068";
   }
 }
