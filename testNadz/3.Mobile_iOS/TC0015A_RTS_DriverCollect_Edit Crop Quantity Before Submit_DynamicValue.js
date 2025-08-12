@@ -23,7 +23,7 @@ async function main() {
     "appium:udid": "00008130-000165AC3E79001C",
   };
 
-  const screenshotDir = path.resolve('./screenshots/Mobile_iOS_TC0015A_EditCropQuantityBeforeSubmit');
+  const screenshotDir = path.resolve('./screenshots/Mobile_iOS_TC0015A_DriverCollect_EditCropQuantityBeforeSubmit');
   if (!fs.existsSync(screenshotDir)) fs.mkdirSync(screenshotDir, { recursive: true });
 
   let driver;
@@ -471,7 +471,7 @@ async function main() {
     const writeSuccess = await writeResultToExcel(
       'iOS_SubmitSingleCrop',
       'TC0015A',
-      'iOS_EditCropQuantityBeforeSubmit_HappyFlow',
+      'iOS_DriverCollect_EditCropQuantityBeforeSubmit_HappyFlow',
       testResult,
       screenshotPath,
       'Mobile_iOS'

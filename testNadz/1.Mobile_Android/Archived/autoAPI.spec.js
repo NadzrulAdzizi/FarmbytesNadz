@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 // Base URL for the API
 const BASE_URL = 'https://reqres.in/api/users?page=2';
