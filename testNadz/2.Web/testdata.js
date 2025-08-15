@@ -7,6 +7,14 @@ export function generateUniqueTestData() {
     //Web Admin Data
     autotestUsername: "autotest829", 
 
+    //Driver Info
+    driverName: `AutoDrive${String(randomId).padStart(3, '0')}`,
+    driverPhone: `012303${String(randomId).padStart(4, '0')}`,
+    assignedParty: `Farmbyte logistic`,
+    vehicleType: `Lorry`,
+    vehicleNumber: `VDH${String(randomId).padStart(4, '0')}`,
+    remarksToDriver: `AutoTest${String(randomId).padStart(3, '0')}`
+
   };
 }
 
