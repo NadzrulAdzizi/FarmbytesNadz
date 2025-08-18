@@ -1,3 +1,143 @@
+import * as XLSX from 'xlsx';
+import path from 'path';
+import fs from 'fs';
+
+export async function writeResultToExcel(module, tcId, testScenario, timestamp, result, screenshotPath) {
+  console.log(`📊 Starting Excel write process...`);
+  console.log(`📋 Data: Module=${module}, TC=${tcId}, Result=${result}`);
+  console.log(`📂 Current working directory: ${process.cwd()}`);
+  const filePath = path.join(process.cwd(), 'AutoReg_FBG2.0_Happy_Flow_E2E_Web.xlsx');
+  const csvPath = path.join(process.cwd(), 'test_results_backup.csv');
+  console.log(`📁 Excel file path: ${filePath}`);
+  console.log(`📁 CSV backup path: ${csvPath}`);
+  // Method 1: Try XLSX library
+  try {
+    console.log(`🔧 Testing XLSX library...`);
+    // Test if XLSX is working
+    const testWorkbook = XLSX.utils.book_new();
+    const testSheet = XLSX.utils.aoa_to_sheet([['Test', 'Data']]);
+    XLSX.utils.book_append_sheet(testWorkbook, testSheet, 'TestSheet');
+    console.log(`✅ XLSX library is working`);
+    let workbook;
+    let worksheet;
+    const sheetName = 'WEB_Test_Results';
+    // Try to read existing workbook
+    if (fs.existsSync(filePath)) {
+      console.log("📖 Reading existing Excel file...");
+      workbook = XLSX.readFile(filePath);
+      if (workbook.Sheets[sheetName]) {
+        worksheet = workbook.Sheets[sheetName];
+        console.log("📋 Found existing worksheet");
+      } else {
+        console.log("📋 Creating new worksheet in existing file");
+        worksheet = XLSX.utils.aoa_to_sheet([
+          ['Module', 'TC ID', 'Test Scenario', 'Timestamp', 'Result', 'Screenshot']
+        ]);
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+      }
+    } else {
+      console.log("📄 Creating new Excel file and worksheet");
+      workbook = XLSX.utils.book_new();
+      worksheet = XLSX.utils.aoa_to_sheet([
+        ['Module', 'TC ID', 'Test Scenario', 'Timestamp', 'Result', 'Screenshot']
+      ]);
+      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    }
+    // Convert sheet to array of arrays
+    const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    console.log(`📊 Current sheet data rows: ${sheetData.length}`);
+    // Add new row
+    const newRow = [module, tcId, testScenario, timestamp, result, screenshotPath || 'N/A'];
+    sheetData.push(newRow);
+    console.log(`📝 Adding row: ${JSON.stringify(newRow)}`);
+    // Convert back to worksheet
+    const newWorksheet = XLSX.utils.aoa_to_sheet(sheetData);
+    workbook.Sheets[sheetName] = newWorksheet;
+    // Write file
+    console.log(`💾 Writing Excel file to: ${filePath}`);
+    XLSX.writeFile(workbook, filePath);
+    // Verify file was created
+    if (fs.existsSync(filePath)) {
+      const stats = fs.statSync(filePath);
+      console.log(`✅ Excel file created successfully - Size: ${stats.size} bytes`);
+      return true;
+    } else {
+      console.error("❌ Excel file was not created!");
+      throw new Error("Excel file not created");
+    }
+  } catch (xlsxError) {
+    console.error('❌ XLSX method failed:', xlsxError.message);
+    console.error('Stack trace:', xlsxError.stack);
+    // Method 2: Try CSV backup
+    try {
+      console.log(`📋 Attempting CSV backup...`);
+      const csvRow = `"${module}","${tcId}","${testScenario}","${timestamp}","${result}","${screenshotPath || 'N/A'}"\n`;
+      if (!fs.existsSync(csvPath)) {
+        console.log(`📄 Creating new CSV file`);
+        fs.writeFileSync(csvPath, '"Module","TC ID","Test Scenario","Timestamp","Result","Screenshot"\n');
+      }
+      fs.appendFileSync(csvPath, csvRow);
+      if (fs.existsSync(csvPath)) {
+        const stats = fs.statSync(csvPath);
+        console.log(`✅ CSV backup created successfully - Size: ${stats.size} bytes`);
+        return true;
+      } else {
+        throw new Error("CSV file not created");
+      }
+    } catch (csvError) {
+      console.error('❌ CSV backup failed:', csvError.message);
+      // Method 3: Try JSON backup
+      try {
+        console.log(`📋 Attempting JSON backup...`);
+        const jsonPath = path.join(process.cwd(), 'test_results_backup.json');
+        const newRecord = {
+          module,
+          tcId,
+          testScenario,
+          timestamp,
+          result,
+          screenshotPath: screenshotPath || 'N/A'
+        };
+        let jsonData = [];
+        if (fs.existsSync(jsonPath)) {
+          const existingData = fs.readFileSync(jsonPath, 'utf8');
+          jsonData = JSON.parse(existingData);
+        }
+        jsonData.push(newRecord);
+        fs.writeFileSync(jsonPath, JSON.stringify(jsonData, null, 2));
+        if (fs.existsSync(jsonPath)) {
+          const stats = fs.statSync(jsonPath);
+          console.log(`✅ JSON backup created successfully - Size: ${stats.size} bytes`);
+          return true;
+        } else {
+          throw new Error("JSON file not created");
+        }
+      } catch (jsonError) {
+        console.error('❌ JSON backup also failed:', jsonError.message);
+        // Method 4: Try simple text file
+        try {
+          console.log(`📋 Attempting simple text file backup...`);
+          const txtPath = path.join(process.cwd(), 'test_results_backup.txt');
+          const txtRow = `${timestamp} | ${module} | ${tcId} | ${testScenario} | ${result} | ${screenshotPath || 'N/A'}\n`;
+          if (!fs.existsSync(txtPath)) {
+            fs.writeFileSync(txtPath, 'Timestamp | Module | TC ID | Test Scenario | Result | Screenshot\n');
+          }
+          fs.appendFileSync(txtPath, txtRow);
+          if (fs.existsSync(txtPath)) {
+            const stats = fs.statSync(txtPath);
+            console.log(`✅ Text file backup created successfully - Size: ${stats.size} bytes`);
+            return true;
+          } else {
+            throw new Error("Text file not created");
+          }
+        } catch (txtError) {
+          console.error('❌ All backup methods failed:', txtError.message);
+          return false;
+        }
+      }
+    }
+  }
+}
 export function generateUniqueTestData() {
   const timestamp = Date.now();
   const randomId = Math.floor(Math.random() * 1000);
