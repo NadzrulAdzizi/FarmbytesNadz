@@ -1,5 +1,4 @@
 import { defineConfig, devices } from '@playwright/test';
-
 export default defineConfig({
   testDir: './testNadz',
   fullyParallel: true,
@@ -13,7 +12,6 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
-
   projects: [
     {
       name: 'chromium',
@@ -21,4 +19,3 @@ export default defineConfig({
     },
   ],
 });
-

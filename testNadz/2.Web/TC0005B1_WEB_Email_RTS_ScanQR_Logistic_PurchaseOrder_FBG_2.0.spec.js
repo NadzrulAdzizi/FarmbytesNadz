@@ -84,24 +84,39 @@ test('Web ScanQR Logistic Test', async ({ page }) => {
     } catch (scanErr) {
       console.error('Error scanning QR code:', scanErr);
     }
-    await page.waitForTimeout(5000);
+    await page.waitForTimeout(1000);
     // Final screenshot
     screenshotPath = path.join(screenshotsDir, `step${step++}_test_completed.png`);
     await page.screenshot({ path: screenshotPath });
     
 
-  await page.getByRole('spinbutton').click();
-  const estQtyCell = await page.getByRole('cell', { name: 'Est. QTY' });
-  await estQtyCell.click();
-  const estQtyValue = await estQtyCell.textContent();
-  const estQty = estQtyValue ? estQtyValue.replace(/[^\d.]/g, '') : '';
-  await page.getByRole('spinbutton').fill(estQty);//automated amount must same as Est. QTY
-    await page.locator('div').filter({ hasText: /^Upload or take a photo$/ }).click();
-    await page.locator('body').setInputFiles('Naz-Pic.jpeg');
+    // Find the index of the "Est. QTY" column
+    const headers = await page.locator('table th').allTextContents();
+    const estQtyIndex = headers.findIndex(h => h.trim().toLowerCase() === 'est. qty');
+
+    // Loop through all rows and get the Est. QTY value for each
+    const rows = await page.locator('table tbody tr').all();
+    for (const row of rows) {
+    const estQtyValue = await row.locator('td').nth(estQtyIndex).textContent();
+    console.log('Est. QTY:', estQtyValue);
+    await page.getByRole('spinbutton').click();
+    await page.getByRole('spinbutton').fill(estQtyValue);//automated amount must same as Est. QTY
+    }
+    //await page.locator('div').filter({ hasText: /^Upload or take a photo$/ }).click();
+    await page.waitForTimeout(1000);
+    screenshotPath = path.join(screenshotsDir, `step${step++}_file_selected.png`);
+    await page.screenshot({ path: screenshotPath });
+    await page.locator('input[type="file"][accept="image/*"]').setInputFiles('/Users/adlanelias/Downloads/Naz-Pic.jpeg');    
     await page.getByRole('button', { name: 'Submit' }).click();
+    await page.waitForTimeout(1000);
     await page.getByRole('textbox', { name: 'Remarks (optional)' }).click();
+    await page.waitForTimeout(1000);
     await page.getByRole('textbox', { name: 'Remarks (optional)' }).fill(Data.remarksToDriver);
+    await page.waitForTimeout(1000);
+    screenshotPath = path.join(screenshotsDir, `step${step++}_remarks_filled.png`);
+    await page.screenshot({ path: screenshotPath });
     await page.getByRole('button', { name: 'Submit' }).nth(1).click();
+    await page.waitForTimeout(1000);
 
     console.log("✅ Test completed successfully!");
 
