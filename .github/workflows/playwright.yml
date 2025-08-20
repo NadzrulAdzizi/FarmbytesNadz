@@ -21,7 +21,7 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps chromium
     - name: Run Web tests only (skip mobile)
-      run: npx playwright test testNadz/2.Web --project=chromium --reporter=list,html || echo "Tests completed"
+      run: xvfb-run npx playwright test testNadz/2.Web --project=chromium --reporter=list,html || echo "Tests completed"
 
     - name: Debug - Check for report folder
       run: ls -la playwright-report || echo "Report folder not found"
