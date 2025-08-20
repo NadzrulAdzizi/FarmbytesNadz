@@ -22,9 +22,14 @@ jobs:
       run: npx playwright install --with-deps chromium
     - name: Run Web tests only (skip mobile)
       run: npx playwright test testNadz/2.Web --project=chromium --headed=false --reporter=list,html || echo "Tests completed"
+
+    - name: Debug - List report directory
+      run: ls -la playwright-report || echo "No report folder found"
+
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
         name: playwright-report
         path: playwright-report/
+        if-no-files-found: warn
         retention-days: 30
