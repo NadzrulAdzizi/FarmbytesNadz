@@ -21,7 +21,7 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps chromium
     - name: Run Web tests only (skip mobile)
-      run: npx playwright test testNadz/2.Web --project=chromium || echo "Tests completed"
+      run: npx playwright test testNadz/2.Web --project=chromium --headed=false || echo "Tests completed"
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
