@@ -178,7 +178,7 @@ async function writeResultToExcel(module, tcId, testScenario, timestamp, result,
 test('Playwright_onWeb', async () => {
   let testResult = 'PASS';
   let screenshotPath = '';
-  const screenshotsDir = path.resolve('./screenshots/web_Email_RTS_Assign_Logistic');
+  const screenshotsDir = path.resolve('./screenshots/web_Email_RTS_Assign_Logistic_DriverCollect');
   if (!fs.existsSync(screenshotsDir)) fs.mkdirSync(screenshotsDir, { recursive: true });
 
   let browser, context, page;
@@ -232,6 +232,12 @@ test('Playwright_onWeb', async () => {
     await page.waitForTimeout(1000);
     await page.getByRole('link', { name: 'Logistic' }).click();
     await page.waitForTimeout(1000);
+    await page.getByRole('combobox').filter({ hasText: 'Logistic Status' }).click();
+    await page.waitForTimeout(1000);    
+    await page.getByRole('option', { name: 'Pending Driver Assignment' }).click();
+    await page.waitForTimeout(1000);
+    await page.getByText('List of LogisticsSearch by').click();
+
     screenshotPath = path.join(screenshotsDir, `step${step++}_logistic_page_loaded.png`);
     await page.screenshot({ path: screenshotPath });
 
@@ -337,7 +343,7 @@ test('Playwright_onWeb', async () => {
       const success = await writeResultToExcel(
         'WEB_AdminLogin',
         'TC005B',
-        'Web_Admin_Email_RTS_Assign_Logistic',
+        'Web_Admin_Email_RTS_Assign_Logistic_DriverCollect',
         timestamp,
         testResult,
         screenshotPath
@@ -386,7 +392,7 @@ test('Playwright_onWeb', async () => {
       const success = await writeResultToExcel(
         'WEB_AdminLogin',
         'TC005B',
-        'Web_Admin_Email_RTS_Assign_Logistic',
+        'Web_Admin_Email_RTS_Assign_Logistic_DriverCollect',
         timestamp,
         testResult,
         screenshotPath

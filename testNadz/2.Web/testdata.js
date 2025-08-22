@@ -153,7 +153,11 @@ export function generateUniqueTestData() {
     assignedParty: `Farmbyte logistic`,
     vehicleType: `Lorry`,
     vehicleNumber: `VDH${String(randomId).padStart(4, '0')}`,
-    remarksToDriver: `AutoTest${String(randomId).padStart(3, '0')}`
+    remarksToDriver: `AutoTest${String(randomId).padStart(3, '0')}`,
+
+    collectorName: `AutoCollector${String(randomId).padStart(3, '0')}`,
+    collectorPhone: `012303${String(randomId).padStart(4, '0')}`,
+    vehicleCollectorType: `Farmbyte logistic`
 
   };
 }

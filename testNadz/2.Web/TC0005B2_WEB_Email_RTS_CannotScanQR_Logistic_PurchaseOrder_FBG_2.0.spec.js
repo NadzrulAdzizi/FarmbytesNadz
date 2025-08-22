@@ -63,6 +63,12 @@ test('Playwright_onWeb', async () => {
     await page.waitForTimeout(1000);
     await page.getByRole('link', { name: 'Logistic' }).click();
     await page.waitForTimeout(1000);
+    await page.getByRole('combobox').filter({ hasText: 'Logistic Status' }).click();
+    await page.waitForTimeout(1000);    
+    await page.getByRole('option', { name: 'Pending Collection' }).click();
+    await page.waitForTimeout(1000);
+    await page.getByText('List of LogisticsSearch by').click();
+    
     screenshotPath = path.join(screenshotsDir, `step${step++}_logistic_page_loaded.png`);
     await page.screenshot({ path: screenshotPath });
 

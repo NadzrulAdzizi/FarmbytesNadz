@@ -1,0 +1,22 @@
+{
+  "name": "testnadz",
+  "version": "1.0.0",
+  "main": "FarmbyteAppiumNegetiveTest.spec.js",
+  "scripts": {
+    "test:purchaseOrder_DriverCollect": "npx playwright test TC0005A_*.spec.js TC0005B_*.spec.js TC0005B2_*.spec.js TC0005C_*.spec.js TC0005D_*.spec.js TC0005E_*.spec.js TC0005E1_*.spec.js TC0005E2_*.spec.js --workers=1",
+    "test:purchaseOrder_SelfDropOff": "npx playwright test TC0005A1_*.spec.js TC0005B3_*.spec.js TC0005B2_*.spec.js TC0005C_*.spec.js TC0005D_*.spec.js TC0005E_*.spec.js TC0005E1_*.spec.js TC0005E2_*.spec.js --workers=1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.54.2",
+    "@types/node": "^24.0.13"
+  },
+  "dependencies": {
+    "appium": "^2.19.0",
+    "webdriverio": "^9.18.0",
+    "xlsx": "^0.18.5"
+  }
+}

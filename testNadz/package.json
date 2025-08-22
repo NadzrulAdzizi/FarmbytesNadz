@@ -2,7 +2,9 @@
   "name": "testnadz",
   "version": "1.0.0",
   "main": "FarmbyteAppiumNegetiveTest.spec.js",
-  "scripts": {},
+  "scripts": {
+    "test:tc0005": "npx playwright test TC0005A*.spec.js TC0005B*.spec.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
