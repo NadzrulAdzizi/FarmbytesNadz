@@ -71,12 +71,12 @@ test('Scan Quotation Status for Pending', async ({ page }) => {
       }
       if (await nextBtn.isVisible() && await nextBtn.isEnabled()) {
         await nextBtn.click();
-        await page.waitForTimeout(80);
+        await page.waitForTimeout(70);
         pageNum++;
         // After clicking, check if nextBtn is now disabled (last page)
         if (await nextBtn.isVisible() && (await prevBtn.isEnabled())) {
           await nextBtn.count();
-          await page.waitForTimeout(100);
+          await page.waitForTimeout(90);
           pageNum++;
         }
       } else {
